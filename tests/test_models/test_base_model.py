@@ -41,8 +41,8 @@ class test_basemodel(unittest.TestCase):
         new = BaseModel(**copy)
         self.assertFalse(new is i)
 
-@unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db',
-                 'basemodel test not supported')
+    @unittest.skipIf(os.getenv('HBNB_TYPE_STORAGE') == 'db',
+                     'basemodel test not supported')
     def test_kwargs_int(self):
         """ """
         i = self.value()
