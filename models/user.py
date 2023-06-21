@@ -13,7 +13,7 @@ class User(BaseModel, Base):
     if getenv('HBNB_TYPE_STORAGE') == 'db':
         __tablename__ = 'users'
         email = Column(String(128), nullable=False)
-        _password = Column('password'(128), nullable=False)
+        _password = Column('password', String(128), nullable=False)
         first_name = Column(String(128), nullable=True)
         last_name = Column(String(128), nullable=True)
         places = relationship('Place',
@@ -39,7 +39,6 @@ class User(BaseModel, Base):
         return self._password
 
     @password.setter
-    """Sets the value of _password attribute and
-    perfoms hashing on the provided value"""
     def password(self, pwd):
+        """Perfoms hashing on password"""
         self._password = pwd
