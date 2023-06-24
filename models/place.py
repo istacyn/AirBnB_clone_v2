@@ -1,10 +1,18 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
-import models
-from os import getenv
 from models.base_model import BaseModel, Base
 from sqlalchemy import Column, String, Integer, Float, Table, ForeignKey
 from sqlalchemy.orm import relationship
+from os import environ
+
+
+place_amenity = Table('place_amenity', Base.metedata,
+                      Column('place_id', String(60)
+                             ForeignKey('places.id'),
+                             primary_key=True, nullable=False),
+                      Column('amenity_id', String(60)
+                             ForeignKey('amenities.id'),
+                             primary_key=True, nullable=False))
 
 
 class Place(BaseModel, Base):
@@ -22,7 +30,7 @@ class Place(BaseModel, Base):
     longitude = Column(Float, nullable=True)
     amenity_ids = []
 
-    if getenv['HBNB_TYPE_STORAGE'] == 'db':
+    if environ['HBNB_TYPE_STORAGE'] == 'db':
         reviews = relationship('Review',
                                cascade='all, delete', backref='place')
         amenities = relationship('Amenity',
@@ -46,36 +54,17 @@ class Place(BaseModel, Base):
             """
             Getter attribute amenities
             """
-            amenity_objs = []
-            amenities = models.storage.all(Amenity)
-            for amenity in amenities.values():
-                if amenity.id in self.amenity_ids:
-                    amenity_objs.append(amenity)
-            return amenity_objs
+            list_of_amenities = []
+            all_amenities = models.storage.all(Amenity)
+            for key, obj in all_amenities.items():
+                if key in self.amenity_ids:
+                    list_of_amenities.append(obj)
+            return list_of_amenities
 
         @amenities.setter
         def amenities(self, obj):
             """
             Setter attribute amenities"""
-            if isinstance(obj, Amenity):
-                if obj.id not in self.amenity_ids:
-                    self.amenity_ids.append(obj.id)
-
-    if getenv['HBNB_TYPE_STORAGE'] == 'db':
-        metadata = Base.metadata
-        place_amenity = Table('place_amenity', metedata,
-                              Column('place_id',
-                                     String(60)
-                                     ForeignKey('places.id'),
-                                     primary_key=True,
-                                     nullable=False),
-                              Column('amenity_id',
-                                     String(60)
-                                     ForeignKey('amenities.id'),
-                                     primary_key=True,
-                                     nullable=False))
-
-    def __inti__(self, *args, **kwargs):
-        """
-        Initialize places"""
-        super().__inti__(*args, **kwargs)
+            if type(obj).__name__ == 'Amenity':
+                new_amenity = 'Amenity' + '.' + obj.id
+                self.amenity_ids.append(new_amenity)

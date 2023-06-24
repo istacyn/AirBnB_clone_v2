@@ -3,15 +3,16 @@
 import cmd
 import sys
 import shlex
+import re
 
-import models
-from models.base_model import BaseModel
-from models.user import User
-from models.place import Place
-from models.state import State
-from models.city import City
+from models.__init__ import storage
 from models.amenity import Amenity
+from models.base_model import BaseModel
+from models.city import City
+from models.place import Place
 from models.review import Review
+from models.state import State
+from models.user import User
 
 
 class HBNBCommand(cmd.Cmd):
@@ -117,38 +118,41 @@ class HBNBCommand(cmd.Cmd):
 
     def do_create(self, args):
         """ Create an object of any class"""
-        _args = args.split(" ", 1)
-        if not _args[0]:
+        if not args:
             print("** class name missing **")
             return
-        elif _args[0] not in HBNBCommand.classes:
-            print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[_args[0]]()
-        if len(_args) > 1:
-            _kwargs = dict((x, y)
-                           for x, y in (elt.split('=')
-                           for elt in _args[1].split(' ')))
-
-            for key, value in _kwargs.items():
-                try:
-                    getattr(new_instance, key)
-                except AttributeError:
-                    continue
-                if value[0] is "\"":
-                    value = value.strip("\"")
-                    value = value.replace("_", " ")
-                    value = value.replace("\\\"", "\"")
-                elif "." in value:
-                    value = float(value)
-                else:
-                    try:
+        if args:
+            prt_args = args.partition(" ")
+            cls_nm = prt_args[0]  # Class name
+            objs = prt_args[2].split()  # Parameters
+            if cls_nm not in HBNBCommand.classes:
+                print("** class doesn't exist **")
+                return
+            else:
+                new_instance = HBNBCommand.classes[cls_nm]()
+                for obj in objs:
+                    nm_vl = obj.split("=")
+                    atr = nm_vl[0]
+                    value = nm_vl[1]
+                    is_string = HBNBCommand._stringChecker(value)
+                    is_float = HBNBCommand._floatChecker(value)
+                    is_num = HBNBCommand._numChecker(value)
+                    if is_string:
+                        value = value[1:-1]  # Rmv start & end double quotes
+                        value = value.replace('\\"', '"')  # Handle backslash
+                        value = value.replace("_", " ")  # Insert spaces
+                    elif is_num:
                         value = int(value)
-                    except:
-                        continue
-                setattr(new_instance, key, value)
-        new_instance.save()
-        print(new_instance.id)
+                    elif is_float:
+                        value = float(value)
+                    else:
+                        pass
+                    if hasattr(new_instance, atr):
+                        setattr(new_instance, atr, value)
+
+                storage.save()
+                print(new_instance.id)
+                storage.save()
 
     def help_create(self):
         """ Help information for the create method """
