@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """Distributes an archive to web servers"""
-from fabric import *
+from fabric.api import env, run, put
 from os.path import exists
 from datetime import datetime
 
@@ -45,7 +45,8 @@ def do_deploy(archive_path):
         run('sudo ln -s /data/web_static/releases/\
                 web_static_{}/ /data/web_static/current'.format(timestamp))
 
-    except Exception:
+    except Exception as e:
+        print(e)
         return False
 
     return True
