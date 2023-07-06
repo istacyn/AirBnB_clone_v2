@@ -11,38 +11,41 @@ env.key_filename = '~/.ssh/id_rsa'
 
 def do_deploy(archive_path):
     """Distributes an archive to the web servers."""
-    if not exists(archive_path):
-        return False
-
     try:
+        if not exists(archive_path):
+            return False
+
         # Upload archive to /tmp/ directory of web server
         put(archive_path, '/tmp/')
 
+        # Create a target directory
+        timestamp = archive_path[-18:-4]
+        run('sudo mkdir -p /data/web_static/\
+                releases/web_static_{}'.format(timestamp))
+
         # Uncompress archive to folder on the web server
-        archive_filename = archive_path.split('/')[-1]
-        folder_name = archive_filename.split('.')[0]
-        releases_path = '/data/web_static/releases/'
-        run('mkdir -p {}{}/'.format(releases_path, folder_name))
-        run('tar -xzf /tmp/{} -C {}{}/'.format(archive_filename,
-            releases_path, folder_name))
+        run('sudo tar -xzf /tmp/web_static_{}.tgz -C \
+                /data/web_static/releases/web_static_{}/'
+            .format(timestamp, timestamp))
 
         # Delete the archive from the web server
-        run('rm /tmp/{}'.format(archive_filename))
+        run('sudo rm /tmp/web_static_{}.tgz'.format(timestamp))
 
         # Move extracted files to correct location
-        run('mv {}{}/web_static/* {}{}/'.format(releases_path,
-            folder_name, releases_path, folder_name))
-        run('rm -rf {}{}/web_static'.format(releases_path, folder_name))
+        run('sudo mv /data/web_static/releases/web_static_{}/web_static/* \
+                /data/web_static/releases/web_static_{}/'
+            .format(timestamp, timestamp))
+        run('sudo rm -rf /data/web_static/releases/\
+                web_static_{}/web_static'.format(timestamp))
 
         # Delete the existing symbolic link
-        run('rm -rf /data/web_static/current')
+        run('sudo rm -rf /data/web_static/current')
 
         # Create a new symbolic link to new version
-        run('ln -s {}{}/ /data/web_static/current'.format(
-            releases_path, folder_name))
+        run('sudo ln -s /data/web_static/releases/\
+                web_static_{}/ /data/web_static/current'.format(timestamp))
 
-        return True
-
-    except Exception as e:
-        print(e)
+    except Exception:
         return False
+
+    return True
