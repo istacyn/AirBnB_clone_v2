@@ -12,7 +12,7 @@ env.key_filename = '~/.ssh/id_rsa'
 def do_deploy(archive_path):
     """Distributes an archive to the web servers."""
     try:
-        if not exists(archive_path):
+        if not (exists(archive_path)):
             return False
 
         # Upload archive to /tmp/ directory of web server
@@ -21,7 +21,7 @@ def do_deploy(archive_path):
         # Create a target directory
         timestamp = archive_path[-18:-4]
         run('sudo mkdir -p /data/web_static/\
-                releases/web_static_{}'.format(timestamp))
+                releases/web_static_{}/'.format(timestamp))
 
         # Uncompress archive to folder on the web server
         run('sudo tar -xzf /tmp/web_static_{}.tgz -C \
