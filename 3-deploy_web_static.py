@@ -12,8 +12,8 @@ def do_pack():
     file = 'versions/web_static_{}{}{}{}{}{}.tgz'.format(dt.year,
                                                          dt.month,
                                                          dt.day,
-                                                         dt.hour
-                                                         dt.minute
+                                                         dt.hour,
+                                                         dt.minute,
                                                          dt.second)
     if os.path.isdir('versions') is False:
         if local('mkdir -p versions').failed is True:
@@ -61,5 +61,5 @@ def deploy():
     """Creates and distributes an archive to the web servers"""
     file = do_pack()
     if file is None:
-        return Flase
+        return False
     return do_deploy(file)
