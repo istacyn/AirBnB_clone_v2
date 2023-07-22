@@ -8,7 +8,7 @@ from sqlalchemy.orm import relationship
 
 
 class State(BaseModel, Base):
-    """ Represents a State for the MySQL database 
+    """ Represents a State for the MySQL database
     Inherits from BaseModel and Base(SqlAlchemy)
 
     Attributes:
@@ -22,7 +22,7 @@ class State(BaseModel, Base):
         cities = relationship("City", backref="state", cascade="delete")
 
     else:
-        def __init__(self, name = ""):
+        def __init__(self, name=""):
             """ if storage_type is not db initialize parameters """
             self.name = name
             super().__init__()
