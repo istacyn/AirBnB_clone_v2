@@ -18,7 +18,8 @@ def close_session(exception):
 
 @app.route('/cities_by_states', strict_slashes=False)
 def cities_by_states():
-    """Displays a HTML page with a list of all State objects sorted by name."""
+    """Displays a HTML page with a list of all State objects
+    and their linked City objects."""
     states = storage.all("State").values()
     return render_template('8-cities_by_states.html', states=states)
 
